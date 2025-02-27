@@ -1,10 +1,13 @@
 {
-  "name": "unstorage",
+  "name": "@lamalex/unstorage",
   "version": "1.15.0",
   "description": "Universal Storage Layer",
   "repository": "unjs/unstorage",
   "license": "MIT",
   "sideEffects": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "exports": {
     "./drivers/*": {
       "types": "./drivers/*.d.ts",
