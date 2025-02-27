@@ -15,8 +15,10 @@ describe.skipIf(
   testDriver({
     driver: () =>
       s3Driver({
-        accessKeyId: accessKeyId!,
-        secretAccessKey: secretAccessKey!,
+        credentials: {
+          accessKeyId: accessKeyId!,
+          secretAccessKey: secretAccessKey!,
+        },
         bucket: bucket!,
         endpoint: endpoint!,
         region: region!,

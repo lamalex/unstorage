@@ -2,7 +2,10 @@
   "name": "@lamalex/unstorage",
   "version": "1.15.0",
   "description": "Universal Storage Layer",
-  "repository": "unjs/unstorage",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lamalex/unstorage.git"
+  },
   "license": "MIT",
   "sideEffects": false,
   "publishConfig": {

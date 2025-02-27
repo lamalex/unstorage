@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: 22
           cache: "pnpm"
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@lamalex'
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@lamalex"
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
@@ -29,12 +29,6 @@ jobs:
       - run: pnpm test:types
       - run: pnpm build
       - name: nightly release
-        if: |
-          github.event_name == 'push' &&
-          !startsWith(github.event.head_commit.message, 'docs')
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> ~/.npmrc
-          pnpm changelogen --canary nightly --publish
+        run: pnpm changelogen --canary nightly --publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

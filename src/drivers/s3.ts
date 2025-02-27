@@ -27,7 +27,7 @@ export interface S3DriverOptions {
   /**
    * AWS Access credentials, or preconfigured AwsClient instance.
    */
-  credentials: AwsCredentials | AwsClient;
+  credentials?: AwsCredentials | AwsClient;
 
   /**
    * The endpoint URL of the S3 service.
@@ -70,10 +70,29 @@ export default defineDriver((options: S3DriverOptions) => {
       }
 
       if (!options.credentials) {
-        throw createRequiredError(DRIVER_NAME, "credentials");
+        if (
+          process.env.AWS_ACCESS_KEY_ID &&
+          process.env.AWS_SECRET_ACCESS_KEY
+        ) {
+          options.credentials = {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            sessionToken: process.env.AWS_SESSION_TOKEN,
+          };
+        } else {
+          throw createError(
+            DRIVER_NAME,
+            "AWS credentials must be defined, or be available in the environment"
+          );
+        }
       }
 
-      if (options.credentials?.service !== "s3") {
+      if (options.credentials && "service" in options.credentials) {
+        if (options.credentials.service !== "s3") {
+          throw createError(DRIVER_NAME, "AwsClient must have `service: 's3'`");
+        }
+        _awsClient = options.credentials as AwsClient;
+      } else {
         if (!options.credentials?.accessKeyId) {
           throw createRequiredError(DRIVER_NAME, "credentials.accessKeyId");
         }
@@ -85,10 +104,9 @@ export default defineDriver((options: S3DriverOptions) => {
           service: "s3",
           accessKeyId: options.credentials.accessKeyId,
           secretAccessKey: options.credentials.secretAccessKey,
+          sessionToken: options.credentials.sessionToken,
           region: options.region,
         });
-      } else {
-        _awsClient = options.credentials;
       }
     }
 
