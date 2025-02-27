@@ -6,7 +6,7 @@ import {
 } from "./utils";
 import { AwsClient } from "aws4fetch";
 
-export interface S3DriverOptions {
+export interface AwsCredentials {
   /**
    * Access Key ID
    */
@@ -16,6 +16,18 @@ export interface S3DriverOptions {
    * Secret Access Key
    */
   secretAccessKey: string;
+
+  /**
+   * Session token, for use with temporary credentials
+   */
+  sessionToken?: string;
+}
+
+export interface S3DriverOptions {
+  /**
+   * AWS Access credentials, or preconfigured AwsClient instance.
+   */
+  credentials: AwsCredentials | AwsClient;
 
   /**
    * The endpoint URL of the S3 service.
@@ -50,25 +62,36 @@ export default defineDriver((options: S3DriverOptions) => {
   let _awsClient: AwsClient;
   const getAwsClient = () => {
     if (!_awsClient) {
-      if (!options.accessKeyId) {
-        throw createRequiredError(DRIVER_NAME, "accessKeyId");
-      }
-      if (!options.secretAccessKey) {
-        throw createRequiredError(DRIVER_NAME, "secretAccessKey");
-      }
       if (!options.endpoint) {
         throw createRequiredError(DRIVER_NAME, "endpoint");
       }
       if (!options.region) {
         throw createRequiredError(DRIVER_NAME, "region");
       }
-      _awsClient = new AwsClient({
-        service: "s3",
-        accessKeyId: options.accessKeyId,
-        secretAccessKey: options.secretAccessKey,
-        region: options.region,
-      });
+
+      if (!options.credentials) {
+        throw createRequiredError(DRIVER_NAME, "credentials");
+      }
+
+      if (options.credentials?.service !== "s3") {
+        if (!options.credentials?.accessKeyId) {
+          throw createRequiredError(DRIVER_NAME, "credentials.accessKeyId");
+        }
+        if (!options.credentials?.secretAccessKey) {
+          throw createRequiredError(DRIVER_NAME, "credentials.secretAccessKey");
+        }
+
+        _awsClient = new AwsClient({
+          service: "s3",
+          accessKeyId: options.credentials.accessKeyId,
+          secretAccessKey: options.credentials.secretAccessKey,
+          region: options.region,
+        });
+      } else {
+        _awsClient = options.credentials;
+      }
     }
+
     return _awsClient;
   };
 
