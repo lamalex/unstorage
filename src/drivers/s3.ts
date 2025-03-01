@@ -93,8 +93,6 @@ export default defineDriver((options: S3DriverOptions) => {
         }
         _awsClient = options.credentials as AwsClient;
       } else {
-        
-
         _awsClient = new AwsClient({
           service: "s3",
           accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
