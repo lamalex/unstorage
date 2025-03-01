@@ -93,18 +93,13 @@ export default defineDriver((options: S3DriverOptions) => {
         }
         _awsClient = options.credentials as AwsClient;
       } else {
-        if (!options.credentials?.accessKeyId) {
-          throw createRequiredError(DRIVER_NAME, "credentials.accessKeyId");
-        }
-        if (!options.credentials?.secretAccessKey) {
-          throw createRequiredError(DRIVER_NAME, "credentials.secretAccessKey");
-        }
+        
 
         _awsClient = new AwsClient({
           service: "s3",
-          accessKeyId: options.credentials.accessKeyId,
-          secretAccessKey: options.credentials.secretAccessKey,
-          sessionToken: options.credentials.sessionToken,
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+          sessionToken: process.env.AWS_SESSION_TOKEN,
           region: options.region,
         });
       }
